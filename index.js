@@ -2,12 +2,14 @@ const express = require("express");
 const app = express();
 const path = require("path");
 const axios = require("axios");
+const cors = require("cors");
 
 const bodyParser = require("body-parser");
 const pdfMakePrinter = require("pdfmake/src/printer");
 
 const PORT = 5004;
 
+app.use(cors());
 app.use(bodyParser.json({ limit: "50mb" }));
 app.use(bodyParser.urlencoded({ extended: true }));
 
