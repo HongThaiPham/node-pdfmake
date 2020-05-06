@@ -352,16 +352,16 @@ app.get("/makepdf-codieukien/:id", (req, res) => {
             res.end(binary);
           },
           (error) => {
-            res.send("ERROR:" + error);
+            res.send("ERROR:" + error.message);
           }
         );
       },
       (error) => {
-        res.send("ERROR:" + error);
+        res.send("ERROR:" + error.message);
       }
     );
   } catch (error) {
-    res.send("ERROR:" + error);
+    res.send("ERROR:" + error.message);
     console.error(error);
   }
 });
