@@ -24,6 +24,24 @@ function createPdfBinary(pdfDoc, callback) {
         "/fonts/Roboto/Roboto-MediumItalic.ttf"
       ),
     },
+    TimeNewRoman: {
+      normal: path.join(
+        __dirname,
+        "/fonts/Time-New-Roman/Time-New-Roman-Regular.ttf"
+      ),
+      bold: path.join(
+        __dirname,
+        "/fonts/Time-New-Roman/Time-New-Roman-Bold.ttf"
+      ),
+      italics: path.join(
+        __dirname,
+        "/fonts/Time-New-Roman/Time-New-Roman-Italic.ttf"
+      ),
+      bolditalics: path.join(
+        __dirname,
+        "/fonts/Time-New-Roman/Time-New-Roman-Bold-Italic.ttf"
+      ),
+    },
   };
 
   var printer = new pdfMakePrinter(fontDescriptors);
@@ -57,13 +75,17 @@ function buildPdfData(id, onSucess, onError) {
           pageSize: "A4",
           pageOrientation: "portrait",
           pageMargins: [50, 25, 50, 25],
+          defaultStyle: {
+            font: "TimeNewRoman",
+          },
           content: [
-            // {
-            //   image: "sampleImage.jpg",
-            //   fit: [150, 150],
-            //   alignment: "center",
-            //   margin: [0, 10, 0, 10],
-            // },
+            {
+              image: "./assets/logomoito.png",
+              width: 150,
+              height: 50,
+              alignment: "center",
+              margin: [0, 10, 0, 10],
+            },
             {
               text:
                 "Số 10 Huỳnh Văn Nghệ, P. Bửu Long, Tp. Biên Hòa, Tỉnh Đồng Nai",
@@ -103,29 +125,57 @@ function buildPdfData(id, onSucess, onError) {
             },
             {
               text:
-                "Đại học Lạc Hồng xin gửi lời cảm ơn chân thành đến bạn vì sự tin tưởng và lựa chọn Đại học Lạc Hồng là điểm đến học tập trong tương lai.",
+                "\u200B\tĐại học Lạc Hồng xin gửi lời cảm ơn chân thành đến bạn vì sự tin tưởng và lựa chọn Đại học Lạc Hồng là điểm đến học tập trong tương lai.",
               style: "content2",
             },
             {
               text:
-                "Trong khi chờ tốt nghiệp THPT để có thể nhập học tại Đại học Lạc Hồng.",
+                "\u200B\tTrong khi chờ tốt nghiệp THPT để có thể nhập học tại Đại học Lạc Hồng.",
               style: "content2",
             },
             {
-              text: `- Anh (chị):${data.data.HoTen}- Sinh ngày:${data.data.NgaySinh}`,
-              style: "content3",
+              columns: [
+                {
+                  width: 350,
+                  text: `- Anh (chị): ${data.data.HoTen}`,
+                  style: "content3",
+                },
+                {
+                  width: "auto",
+                  text: `- Sinh ngày: ${data.data.NgaySinh}`,
+                  style: "content3",
+                },
+              ],
             },
             {
               text: "- Đã trúng tuyển hệ: Đại học chính quy.",
               style: "content3",
             },
             {
-              text: `- Ngành:${data.data.TenNganh}- Mã ngành:${data.data.MaNganhMoi}`,
-              style: "content3",
+              columns: [
+                {
+                  width: 350,
+                  text: `- Ngành: ${data.data.TenNganh}`,
+                  style: "content3",
+                },
+                {
+                  width: "auto",
+                  text: `- Mã ngành: ${data.data.MaNganhMoi}`,
+                  style: "content3",
+                },
+              ],
             },
+
             {
-              text:
-                "Cùng tham gia cộng đồng Sinh viên Đại học Lạc Hồng tại https://www.facebook.com/groups/lhu1997/ để nhận các giá trị gồm:",
+              text: [
+                "\u200B\tCùng tham gia cộng đồng Sinh viên Đại học Lạc Hồng tại ",
+                {
+                  text: "https://www.facebook.com/groups/lhu1997/",
+                  link: "https://www.facebook.com/groups/lhu1997/",
+                  color: "#0000ff",
+                },
+                " để nhận các giá trị gồm:",
+              ],
               style: "content2",
             },
             {
@@ -146,29 +196,74 @@ function buildPdfData(id, onSucess, onError) {
               style: "listitem",
             },
             {
-              text:
-                "Đồng thời, với mỗi hoạt động chia sẻ thông tin tuyển sinh, giới thiệu Bạn cùng Lớp cùng đăng ký xét tuyển và nhập học vào Đại học Lạc Hồng Bạn sẽ nhận được ưu đãi cộng dồn 10% học phí. Giờ thì nhấn vào đường Link:  https://lhu.fun/32F472  để đăng ký tham gia chương “Học bổng đồng hành” nhé.",
+              text: [
+                "\u200B\tĐồng thời, với mỗi hoạt động chia sẻ thông tin tuyển sinh, giới thiệu Bạn cùng Lớp cùng đăng ký xét tuyển và nhập học vào Đại học Lạc Hồng Bạn sẽ nhận được ưu đãi cộng dồn 10% học phí. Giờ thì nhấn vào đường Link: ",
+                {
+                  text: "https://lhu.fun/32F472",
+                  link: "https://lhu.fun/32F472",
+                  color: "#0000ff",
+                },
+                " để đăng ký tham gia chương ",
+                {
+                  text: "“Học bổng đồng hành”",
+                  bold: true,
+                },
+                " nhé.",
+              ],
               style: "content2",
             },
             {
-              text:
-                "Trong suốt quá trình đến khi nhập học nếu có vấn đề hỗ trợ Em vui lòng liên hệ số tổng đài chăm sóc (0251)73.000.73 hoặc 0981.50.33.99 ",
+              text: [
+                "\u200B\tTrong suốt quá trình đến khi nhập học nếu có vấn đề hỗ trợ Em vui lòng liên hệ số tổng đài chăm sóc ",
+                {
+                  text: "(0251)73.000.73 hoặc 0981.50.33.99",
+                  bold: true,
+                },
+              ],
               style: "content2",
             },
             {
-              text: "CHỦ TỊCH HỘI ĐỒNG TUYỂN SINH",
-              style: "signature",
-              margin: [0, 0, 0, 50],
+              columns: [
+                {
+                  text: "",
+                  width: 180,
+                },
+                {
+                  text: "CHỦ TỊCH HỘI ĐỒNG TUYỂN SINH",
+                  style: "signature",
+                  width: 300,
+                },
+              ],
             },
             {
-              text: "HIỆU TRƯỞNG",
-              style: "signature",
-              margin: [0, 0, 50, 0],
+              text: "",
+              margin: [0, 5],
             },
             {
-              text: "ĐỖ HỮU TÀI",
-              style: "signature",
-              margin: [0, 0, 60, 0],
+              columns: [
+                {
+                  text: "",
+                  width: 180,
+                },
+                {
+                  text: "HIỆU TRƯỞNG",
+                  style: "signature",
+                  width: 300,
+                },
+              ],
+            },
+            {
+              columns: [
+                {
+                  text: "",
+                  width: 180,
+                },
+                {
+                  text: "ĐỖ HỮU TÀI",
+                  style: "signature",
+                  width: 300,
+                },
+              ],
             },
           ],
 
@@ -212,7 +307,7 @@ function buildPdfData(id, onSucess, onError) {
             signature: {
               bold: true,
               fontSize: 15,
-              alignment: "right",
+              alignment: "center",
             },
           },
         };
