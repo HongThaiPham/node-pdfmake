@@ -64,6 +64,7 @@ function createPdfBinary(pdfDoc, callback) {
 
 function buildPdfData(id, onSucess, onError) {
   let pdfData = {};
+  var d = new Date();
   axios
     .post("https://tapi.lhu.edu.vn/ts/auth/obj/DangKyOnline_byId", {
       MaDangKy: id,
@@ -97,7 +98,9 @@ function buildPdfData(id, onSucess, onError) {
               style: "header",
             },
             {
-              text: "Đồng Nai, ngày.....tháng.....năm 2020",
+              text: `Đồng Nai, ngày ${d.getDate()} tháng ${
+                d.getMonth() + 1
+              } năm ${d.getFullYear()}`,
               style: "time",
             },
             {
