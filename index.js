@@ -9,7 +9,18 @@ const pdfMakePrinter = require("pdfmake/src/printer");
 
 const PORT = 5004;
 
-app.use(cors());
+const whitelist = ["https://am.lhu.edu.vn"];
+const corsOptions = {
+  origin: function (origin, callback) {
+    if (whitelist.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
+};
+
+app.use(cors(corsOptions));
 app.use(bodyParser.json({ limit: "50mb" }));
 app.use(bodyParser.urlencoded({ extended: true }));
 
