@@ -213,8 +213,8 @@ function buildPdfData(id, onSucess, onError) {
               text: [
                 "\u200B\tĐồng thời, với mỗi hoạt động chia sẻ thông tin tuyển sinh, giới thiệu Bạn cùng Lớp cùng đăng ký xét tuyển và nhập học vào Đại học Lạc Hồng Bạn sẽ nhận được ưu đãi cộng dồn 10% học phí. Giờ thì nhấn vào đường Link: ",
                 {
-                  text: "https://lhu.fun/32F472",
-                  link: "https://lhu.fun/32F472",
+                  text: "https://lhu.fun/170CF9",
+                  link: "https://lhu.fun/170CF9",
                   color: "#0000ff",
                 },
                 " để đăng ký tham gia chương ",
