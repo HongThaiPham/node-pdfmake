@@ -27,7 +27,7 @@ const corsOptions = {
   },
 };
 
-// app.use(cors(corsOptions));
+app.use(cors(corsOptions));
 app.use(bodyParser.json({ limit: "50mb" }));
 app.use(bodyParser.urlencoded({ extended: true }));
 
@@ -104,7 +104,6 @@ function getDataPrint(begin, end, token, onSucess, onError) {
         }
       );
   } else {
-    console.log(cachedValue);
     onSucess(cachedValue);
   }
 }
