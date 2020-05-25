@@ -8,13 +8,15 @@ const myCache = new NodeCache();
 
 const bodyParser = require("body-parser");
 const pdfMakePrinter = require("pdfmake/src/printer");
-const buldGiayBaoCoDieuKien = require("./lib/giay-bao-co-dieu-kien");
+const buildGiayBaoCoDieuKien = require("./lib/giay-bao-co-dieu-kien");
 const buildBoHoSo = require("./lib/bo-ho-so");
 const contentGiayBaoNhaphoc = require("./lib/contentGiayBaoNhaphoc");
 const contentSoYeuLyLich = require("./lib/contentSoYeuLyLich");
 const contentPhieuDangKy = require("./lib/contentPhieuDangKy");
 const buildDiaChi = require("./lib/tem-dia-chi");
 const PORT = 5004;
+const SLACK_HOOK =
+  "https://hooks.slack.com/services/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";
 
 const whitelist = ["https://am.lhu.edu.vn"];
 const corsOptions = {
@@ -79,6 +81,49 @@ function createPdfBinary(pdfDoc, callback) {
   });
   doc.end();
 }
+function postToSlack(url, type = "info", user = "", message) {
+  const curDate = new Date();
+  try {
+    axios.post(SLACK_HOOK, {
+      blocks: [
+        {
+          type: "section",
+          text: {
+            type: "mrkdwn",
+            text: `You have a new request:\n*<${url}|${url}>*`,
+          },
+        },
+        {
+          type: "section",
+          fields: [
+            {
+              type: "mrkdwn",
+              text: `*Type:*\n${type}`,
+            },
+            {
+              type: "mrkdwn",
+              text: `*When:*\n${curDate}`,
+            },
+            {
+              type: "mrkdwn",
+              text: `*User:*\n${user}`,
+            },
+          ],
+        },
+        {
+          type: "section",
+          text: {
+            type: "plain_text",
+            text: message,
+            emoji: true,
+          },
+        },
+      ],
+    });
+  } catch (error) {
+    throw error;
+  }
+}
 
 function getDataPrint(begin, end, token, onSucess, onError) {
   const cachedValue = myCache.get(`data-print-${begin}-${end}`);
@@ -123,7 +168,7 @@ function buildPdfDanhSachDiaChi(begin, end, token, onSucess, onError) {
   );
 }
 
-app.get("/makepdf-dia-chi/:begin/:end", (req, res) => {
+app.get("/makepdf-list-dia-chi/:begin/:end", (req, res) => {
   const { begin, end } = req.params;
   const token = req.headers.authorization;
   if (!token) res.status(401).send("Token not found");
@@ -186,7 +231,7 @@ function buildPdfGiayBaoNhapHoc(begin, end, token, onSucess, onError) {
   );
 }
 
-app.get("/makepdf-giay-bao-nhap-hoc/:begin/:end", (req, res) => {
+app.get("/makepdf-list-giay-bao-nhap-hoc/:begin/:end", (req, res) => {
   const { begin, end } = req.params;
   const token = req.headers.authorization;
   if (!token) res.status(401).send("Token not found");
@@ -263,7 +308,7 @@ function buildPdfBoHoSo(begin, end, token, onSucess, onError) {
   );
 }
 
-app.get("/makepdf-bohoso/:begin/:end", (req, res) => {
+app.get("/makepdf-list-bo-ho-so/:begin/:end", (req, res) => {
   const { begin, end } = req.params;
   const token = req.headers.authorization;
   if (!token) res.status(401).send("Token not found");
@@ -299,23 +344,38 @@ app.get("/makepdf-bohoso/:begin/:end", (req, res) => {
   }
 });
 
-function buildPdfCoDieuKien(id, onSucess, onError) {
-  let pdfData = {};
+function getDataPerson(id, onSucess, onError) {
+  const cachedValue = myCache.get(`data-print-user-${id}`);
+  if (cachedValue == undefined) {
+    axios
+      .post("https://tapi.lhu.edu.vn/ts/auth/obj/DangKyOnline_byId", {
+        MaDangKy: id,
+      })
+      .then(
+        ({ data }) => {
+          myCache.set(`data-print-user-${id}`, data.data);
+          onSucess(data.data);
+        },
+        (error) => {
+          onError(error);
+        }
+      );
+  } else {
+    onSucess(cachedValue);
+  }
+}
 
-  axios
-    .post("https://tapi.lhu.edu.vn/ts/auth/obj/DangKyOnline_byId", {
-      MaDangKy: id,
-    })
-    .then(
-      ({ data }) => {
-        // console.log(data);
-        pdfData = buldGiayBaoCoDieuKien(data.data);
-        onSucess(pdfData);
-      },
-      (error) => {
-        onError(error);
-      }
-    );
+function buildPdfCoDieuKien(id, onSucess, onError) {
+  getDataPerson(
+    id,
+    (data) => {
+      const pdfData = buildGiayBaoCoDieuKien(data);
+      onSucess(pdfData);
+    },
+    (error) => {
+      onError(error);
+    }
+  );
 }
 
 app.get("/makepdf-codieukien/:id", (req, res) => {
@@ -332,6 +392,74 @@ app.get("/makepdf-codieukien/:id", (req, res) => {
             res.setHeader(
               "Content-Disposition",
               `attachment; filename="${MaDangKy}.pdf"`
+            );
+
+            res.end(binary);
+          },
+          (error) => {
+            res.send("ERROR:" + error.message);
+          }
+        );
+      },
+      (error) => {
+        res.send("ERROR:" + error.message);
+      }
+    );
+  } catch (error) {
+    res.send("ERROR:" + error.message);
+    console.error(error);
+  }
+});
+
+function buildPdfBoHoSoPerson(id, onSucess, onError) {
+  getDataPerson(
+    id,
+    (data) => {
+      const docDefinition = buildBoHoSo(null);
+      let content = [];
+
+      const gbnh = contentGiayBaoNhaphoc(data);
+      const syll = contentSoYeuLyLich(data);
+      const pdk = contentPhieuDangKy(data);
+      content.push(
+        [...pdk],
+        {
+          text: "",
+          pageBreak: "before",
+        },
+        [...gbnh],
+        {
+          text: "",
+          pageBreak: "before",
+        },
+        [...syll],
+        {
+          text: "",
+          pageBreak: "before",
+        }
+      );
+
+      docDefinition.content = content;
+      onSucess(docDefinition);
+    },
+    (error) => {}
+  );
+}
+
+app.get("/makepdf-bo-ho-so/:id", (req, res) => {
+  const { id } = req.params;
+  const MaDangKy = id;
+  try {
+    buildPdfBoHoSoPerson(
+      MaDangKy,
+      (pdfData) => {
+        createPdfBinary(
+          pdfData,
+          (binary) => {
+            res.setHeader("Content-Type", "application/pdf");
+            res.setHeader(
+              "Content-Disposition",
+              `attachment; filename="BoHoSo_${MaDangKy}.pdf"`
             );
 
             res.end(binary);
