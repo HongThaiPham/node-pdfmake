@@ -3,10 +3,17 @@ const app = express();
 const path = require("path");
 const axios = require("axios");
 const cors = require("cors");
+const NodeCache = require("node-cache");
+const myCache = new NodeCache();
 
 const bodyParser = require("body-parser");
 const pdfMakePrinter = require("pdfmake/src/printer");
 const buldGiayBaoCoDieuKien = require("./lib/giay-bao-co-dieu-kien");
+const buildBoHoSo = require("./lib/bo-ho-so");
+const contentGiayBaoNhaphoc = require("./lib/contentGiayBaoNhaphoc");
+const contentSoYeuLyLich = require("./lib/contentSoYeuLyLich");
+const contentPhieuDangKy = require("./lib/contentPhieuDangKy");
+const buildDiaChi = require("./lib/tem-dia-chi");
 const PORT = 5004;
 
 const whitelist = ["https://am.lhu.edu.vn"];
@@ -73,7 +80,227 @@ function createPdfBinary(pdfDoc, callback) {
   doc.end();
 }
 
-function buildPdfData(id, onSucess, onError) {
+function getDataPrint(begin, end, token, onSucess, onError) {
+  const cachedValue = myCache.get(`data-print-${begin}-${end}`);
+  if (cachedValue == undefined) {
+    axios
+      .get(
+        `https://tapi.lhu.edu.vn/ts/Report_DangKyOnline_Chunk/${begin}/${end}`,
+        {
+          headers: {
+            authorization: token,
+          },
+        }
+      )
+      .then(
+        ({ data }) => {
+          const item = data.data;
+          myCache.set(`data-print-${begin}-${end}`, item);
+          onSucess(item);
+        },
+        (error) => {
+          console.log(error);
+          onError(error);
+        }
+      );
+  } else {
+    console.log(cachedValue);
+    onSucess(cachedValue);
+  }
+}
+
+function buildPdfDanhSachDiaChi(begin, end, token, onSucess, onError) {
+  getDataPrint(
+    begin,
+    end,
+    token,
+    (data) => {
+      const docDefinition = buildDiaChi(data);
+      onSucess(docDefinition);
+    },
+    (error) => {
+      onError(error);
+    }
+  );
+}
+
+app.get("/makepdf-dia-chi/:begin/:end", (req, res) => {
+  const { begin, end } = req.params;
+  const token = req.headers.authorization;
+  if (!token) res.status(401).send("Token not found");
+  try {
+    buildPdfDanhSachDiaChi(
+      begin,
+      end,
+      token,
+      (pdfData) => {
+        createPdfBinary(
+          pdfData,
+          (binary) => {
+            res.setHeader("Content-Type", "application/pdf");
+            res.setHeader(
+              "Content-Disposition",
+              `attachment; filename="DiaChi_${begin}_${end}.pdf"`
+            );
+
+            res.end(binary);
+          },
+          (error) => {
+            res.send("ERROR:" + error.message);
+          }
+        );
+      },
+      (error) => {
+        res.send("ERROR:" + error.message);
+      }
+    );
+  } catch (error) {
+    res.send("ERROR:" + error.message);
+    console.error(error);
+  }
+});
+
+function buildPdfGiayBaoNhapHoc(begin, end, token, onSucess, onError) {
+  getDataPrint(
+    begin,
+    end,
+    token,
+    (data) => {
+      const docDefinition = buildBoHoSo(null);
+      let content = [];
+      for (let i = 0; i < data.length; i++) {
+        const element = data[i];
+        const gbnh = contentGiayBaoNhaphoc(element);
+
+        content.push([...gbnh], {
+          text: "",
+          pageBreak: "before",
+        });
+      }
+
+      docDefinition.content = content;
+      onSucess(docDefinition);
+    },
+    (error) => {
+      onError(error);
+    }
+  );
+}
+
+app.get("/makepdf-giay-bao-nhap-hoc/:begin/:end", (req, res) => {
+  const { begin, end } = req.params;
+  const token = req.headers.authorization;
+  if (!token) res.status(401).send("Token not found");
+  try {
+    buildPdfGiayBaoNhapHoc(
+      begin,
+      end,
+      token,
+      (pdfData) => {
+        createPdfBinary(
+          pdfData,
+          (binary) => {
+            res.setHeader("Content-Type", "application/pdf");
+            res.setHeader(
+              "Content-Disposition",
+              `attachment; filename="GiayBaoNhapHoc_${begin}_${end}.pdf"`
+            );
+
+            res.end(binary);
+          },
+          (error) => {
+            res.send("ERROR:" + error.message);
+          }
+        );
+      },
+      (error) => {
+        res.send("ERROR:" + error.message);
+      }
+    );
+  } catch (error) {
+    res.send("ERROR:" + error.message);
+    console.error(error);
+  }
+});
+
+function buildPdfBoHoSo(begin, end, token, onSucess, onError) {
+  getDataPrint(
+    begin,
+    end,
+    token,
+    (data) => {
+      const docDefinition = buildBoHoSo(null);
+      let content = [];
+      for (let i = 0; i < data.length; i++) {
+        const element = data[i];
+        // const gbnh = contentGiayBaoNhaphoc(element);
+        const syll = contentSoYeuLyLich(element);
+        const pdk = contentPhieuDangKy(element);
+        content.push(
+          [...pdk],
+          {
+            text: "",
+            pageBreak: "before",
+          },
+          // [...gbnh],
+          // {
+          //   text: "",
+          //   pageBreak: "before",
+          // },
+          [...syll],
+          {
+            text: "",
+            pageBreak: "before",
+          }
+        );
+      }
+
+      docDefinition.content = content;
+      onSucess(docDefinition);
+    },
+    (error) => {
+      onError(error);
+    }
+  );
+}
+
+app.get("/makepdf-bohoso/:begin/:end", (req, res) => {
+  const { begin, end } = req.params;
+  const token = req.headers.authorization;
+  if (!token) res.status(401).send("Token not found");
+  try {
+    buildPdfBoHoSo(
+      begin,
+      end,
+      token,
+      (pdfData) => {
+        createPdfBinary(
+          pdfData,
+          (binary) => {
+            res.setHeader("Content-Type", "application/pdf");
+            res.setHeader(
+              "Content-Disposition",
+              `attachment; filename="BoHoSo_${begin}_${end}.pdf"`
+            );
+
+            res.end(binary);
+          },
+          (error) => {
+            res.send("ERROR:" + error.message);
+          }
+        );
+      },
+      (error) => {
+        res.send("ERROR:" + error.message);
+      }
+    );
+  } catch (error) {
+    res.send("ERROR:" + error.message);
+    console.error(error);
+  }
+});
+
+function buildPdfCoDieuKien(id, onSucess, onError) {
   let pdfData = {};
 
   axios
@@ -96,7 +323,7 @@ app.get("/makepdf-codieukien/:id", (req, res) => {
   const { id } = req.params;
   const MaDangKy = id;
   try {
-    buildPdfData(
+    buildPdfCoDieuKien(
       MaDangKy,
       (pdfData) => {
         createPdfBinary(
