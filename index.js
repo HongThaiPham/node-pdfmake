@@ -277,20 +277,20 @@ function buildPdfBoHoSo(begin, end, token, onSucess, onError) {
       let content = [];
       for (let i = 0; i < data.length; i++) {
         const element = data[i];
-        // const gbnh = contentGiayBaoNhaphoc(element);
+        const gbnh = contentGiayBaoNhaphoc(element);
         const syll = contentSoYeuLyLich(element);
-        const pdk = contentPhieuDangKy(element);
+        // const pdk = contentPhieuDangKy(element);
         content.push(
-          [...pdk],
-          {
-            text: "",
-            pageBreak: "before",
-          },
-          // [...gbnh],
+          // [...pdk],
           // {
           //   text: "",
           //   pageBreak: "before",
           // },
+          [...gbnh],
+          {
+            text: "",
+            pageBreak: "before",
+          },
           [...syll],
           {
             text: "",
