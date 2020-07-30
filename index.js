@@ -126,31 +126,50 @@ function postToSlack(url, type = "info", user = "", message) {
 }
 
 function getDataPrint(begin, end, token, onSucess, onError) {
-  const cachedValue = myCache.get(`data-print-${begin}-${end}`);
-  if (cachedValue == undefined) {
-    axios
-      .get(
-        `https://tapi.lhu.edu.vn/ts/Report_DangKyOnline_Chunk/${begin}/${end}`,
-        {
-          headers: {
-            authorization: token,
-          },
-        }
-      )
-      .then(
-        ({ data }) => {
-          const item = data.data;
-          myCache.set(`data-print-${begin}-${end}`, item);
-          onSucess(item);
+  axios
+    .get(
+      `https://tapi.lhu.edu.vn/ts/Report_DangKyOnline_Chunk/${begin}/${end}`,
+      {
+        headers: {
+          authorization: token,
         },
-        (error) => {
-          console.log(error);
-          onError(error);
-        }
-      );
-  } else {
-    onSucess(cachedValue);
-  }
+      }
+    )
+    .then(
+      ({ data }) => {
+        const item = data.data;
+        onSucess(item);
+      },
+      (error) => {
+        console.log(error);
+        onError(error);
+      }
+    );
+  // const cachedValue = myCache.get(`data-print-${begin}-${end}`);
+  // if (cachedValue == undefined) {
+  //   axios
+  //     .get(
+  //       `https://tapi.lhu.edu.vn/ts/Report_DangKyOnline_Chunk/${begin}/${end}`,
+  //       {
+  //         headers: {
+  //           authorization: token,
+  //         },
+  //       }
+  //     )
+  //     .then(
+  //       ({ data }) => {
+  //         const item = data.data;
+  //         myCache.set(`data-print-${begin}-${end}`, item);
+  //         onSucess(item);
+  //       },
+  //       (error) => {
+  //         console.log(error);
+  //         onError(error);
+  //       }
+  //     );
+  // } else {
+  //   onSucess(cachedValue);
+  // }
 }
 
 function buildPdfDanhSachDiaChi(begin, end, token, onSucess, onError) {
