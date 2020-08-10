@@ -29,7 +29,7 @@ const corsOptions = {
   },
 };
 
-// app.use(cors(corsOptions));
+app.use(cors(corsOptions));
 app.use(bodyParser.json({ limit: "50mb" }));
 app.use(bodyParser.urlencoded({ extended: true }));
 
@@ -229,7 +229,7 @@ function buildPdfGiayBaoNhapHoc(begin, end, token, onSucess, onError) {
     end,
     token,
     (data) => {
-      const docDefinition = buildBoHoSo(null);
+      let docDefinition = buildBoHoSo(null);
       let content = [];
       for (let i = 0; i < data.length; i++) {
         const element = data[i];
@@ -242,6 +242,15 @@ function buildPdfGiayBaoNhapHoc(begin, end, token, onSucess, onError) {
       }
 
       docDefinition.content = content;
+      docDefinition.footer = function (currentPage, pageCount) {
+        return {
+          margin: [50, 0, 50, 0],
+          text: [
+            { text: "Ghi chú: ", bold: true, italics: true },
+            "Bạn được áp dụng giảm thêm học phí nếu thuộc nhóm đối tượng hưởng chính sách học bổng Đại học Lạc Hồng dành cho bạn.",
+          ],
+        };
+      };
       onSucess(docDefinition);
     },
     (error) => {
@@ -292,7 +301,7 @@ function buildPdfBoHoSo(begin, end, token, onSucess, onError) {
     end,
     token,
     (data) => {
-      const docDefinition = buildBoHoSo(null);
+      let docDefinition = buildBoHoSo(null);
       let content = [];
       for (let i = 0; i < data.length; i++) {
         const element = data[i];
@@ -319,6 +328,19 @@ function buildPdfBoHoSo(begin, end, token, onSucess, onError) {
       }
 
       docDefinition.content = content;
+      docDefinition.footer = function (currentPage, pageCount) {
+        if (currentPage % 3 === 1) {
+          return {
+            margin: [50, 0, 50, 0],
+            text: [
+              { text: "Ghi chú: ", bold: true, italics: true },
+              "Bạn được áp dụng giảm thêm học phí nếu thuộc nhóm đối tượng hưởng chính sách học bổng Đại học Lạc Hồng dành cho bạn.",
+            ],
+          };
+        } else {
+          return {};
+        }
+      };
       onSucess(docDefinition);
     },
     (error) => {
@@ -439,13 +461,13 @@ function buildPdfBoHoSoPerson(id, onSucess, onError) {
 
       const gbnh = contentGiayBaoNhaphoc(data);
       const syll = contentSoYeuLyLich(data);
-      const pdk = contentPhieuDangKy(data);
+      // const pdk = contentPhieuDangKy(data);
       content.push(
-        [...pdk],
-        {
-          text: "",
-          pageBreak: "before",
-        },
+        // [...pdk],
+        // {
+        //   text: "",
+        //   pageBreak: "before",
+        // },
         [...gbnh],
         {
           text: "",
