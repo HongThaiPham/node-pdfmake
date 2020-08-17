@@ -417,24 +417,22 @@ app.get("/makepdf-list-bo-ho-so/:begin/:end", (req, res) => {
 });
 
 function getDataPerson(id, onSucess, onError) {
-  const cachedValue = myCache.get(`data-print-user-${id}`);
-  if (cachedValue == undefined) {
-    axios
-      .post("https://tapi.lhu.edu.vn/ts/auth/obj/DangKyOnline_byId", {
-        MaDangKy: id,
-      })
-      .then(
-        ({ data }) => {
-          myCache.set(`data-print-user-${id}`, data.data);
-          onSucess(data.data);
-        },
-        (error) => {
-          onError(error);
-        }
-      );
-  } else {
-    onSucess(cachedValue);
-  }
+  axios
+    .post("https://tapi.lhu.edu.vn/ts/auth/obj/DangKyOnline_byCM", {
+      MaDangKy: id,
+    })
+    .then(
+      ({ data }) => {
+        myCache.set(`data-print-user-${id}`, data.data);
+        onSucess(data.data);
+      },
+      (error) => {
+        onError(
+          error.response.data.Message ||
+            "Thông tin không hợp lệ hoặc không tồn tại. Vui lòng liên hệ số điện thoại (0251) 73 000 73 để được tư vấn."
+        );
+      }
+    );
 }
 
 function buildPdfCoDieuKien(id, onSucess, onError) {
@@ -514,7 +512,9 @@ function buildPdfBoHoSoPerson(id, onSucess, onError) {
       docDefinition.content = content;
       onSucess(docDefinition);
     },
-    (error) => {}
+    (error) => {
+      onError(error);
+    }
   );
 }
 
@@ -537,17 +537,17 @@ app.get("/makepdf-bo-ho-so/:id", (req, res) => {
             res.end(binary);
           },
           (error) => {
-            res.send("ERROR:" + error.message);
+            res.status(500).send({ error }).end();
           }
         );
       },
       (error) => {
-        res.send("ERROR:" + error.message);
+        res.status(500).send({ error }).end();
       }
     );
   } catch (error) {
-    res.send("ERROR:" + error.message);
-    console.error(error);
+    console.log("adsjasdk");
+    res.status(500).send({ error }).end();
   }
 });
 
