@@ -18,7 +18,7 @@ const PORT = 5004;
 const SLACK_HOOK =
   "https://hooks.slack.com/services/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";
 
-const whitelist = ["https://am.lhu.edu.vn"];
+const whitelist = ["https://am.lhu.edu.vn", "http://localhost:8080"];
 const corsOptions = {
   origin: function (origin, callback) {
     if (whitelist.indexOf(origin) !== -1) {
@@ -502,14 +502,36 @@ function buildPdfBoHoSoPerson(id, onSucess, onError) {
           text: "",
           pageBreak: "before",
         },
-        [...syll],
-        {
-          text: "",
-          pageBreak: "before",
-        }
+        [...syll]
       );
 
       docDefinition.content = content;
+      docDefinition.footer = function (currentPage, pageCount) {
+        if (currentPage % 3 === 1) {
+          return {
+            margin: [25, 0, 0, 0],
+            stack: [
+              { text: "Ghi chú: ", bold: true, italics: true },
+              {
+                margin: [20, 0, 15, 0],
+                text: "- Điều kiện nhập học: Thí sinh đậu tốt nghiệp THPT",
+              },
+              {
+                margin: [20, 0, 15, 0],
+                text:
+                  "- Học phí ngành Dược 18tr/ học kỳ, Ngành khác 13tr/1 học kỳ, nhập học trước 19/9/2020 giảm 20% học phí.",
+              },
+              {
+                margin: [20, 0, 15, 0],
+                text:
+                  "- Bạn được áp dụng giảm thêm học phí nếu thuộc nhóm đối tượng hưởng chính sách học bổng Đại học Lạc Hồng dành cho bạn.",
+              },
+            ],
+          };
+        } else {
+          return {};
+        }
+      };
       onSucess(docDefinition);
     },
     (error) => {
