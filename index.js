@@ -18,7 +18,11 @@ const PORT = 5004;
 const SLACK_HOOK =
   "https://hooks.slack.com/services/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";
 
-const whitelist = ["https://am.lhu.edu.vn", "http://localhost:8080"];
+const whitelist = [
+  "https://am.lhu.edu.vn",
+  "https://tuyensinh.lhu.edu.vn",
+  "http://localhost:8080",
+];
 const corsOptions = {
   origin: function (origin, callback) {
     if (whitelist.indexOf(origin) !== -1) {
