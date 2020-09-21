@@ -258,7 +258,7 @@ function buildPdfGiayBaoNhapHoc(begin, end, token, onSucess, onError) {
             {
               margin: [20, 0, 15, 0],
               text:
-                "- Học phí ngành Dược 18tr/ học kỳ, Ngành khác 13tr/1 học kỳ, nhập học trước 19/9/2020 giảm 20% học phí.",
+                "- Học phí ngành Dược 18tr/ học kỳ, Ngành khác 13tr/1 học kỳ, nhập học đến ngày 03/10/2020 giảm 15% học phí.",
             },
             {
               margin: [20, 0, 15, 0],
@@ -363,7 +363,7 @@ function buildPdfBoHoSo(begin, end, token, onSucess, onError) {
               {
                 margin: [20, 0, 15, 0],
                 text:
-                  "- Học phí ngành Dược 18tr/ học kỳ, Ngành khác 13tr/1 học kỳ, nhập học trước 19/9/2020 giảm 20% học phí.",
+                  "- Học phí ngành Dược 18tr/ học kỳ, Ngành khác 13tr/1 học kỳ, nhập học đến ngày 03/10/2020 giảm 15% học phí.",
               },
               {
                 margin: [20, 0, 15, 0],
@@ -523,7 +523,7 @@ function buildPdfBoHoSoPerson(id, onSucess, onError) {
               {
                 margin: [20, 0, 15, 0],
                 text:
-                  "- Học phí ngành Dược 18tr/ học kỳ, Ngành khác 13tr/1 học kỳ, nhập học trước 19/9/2020 giảm 20% học phí.",
+                  "- Học phí ngành Dược 18tr/ học kỳ, Ngành khác 13tr/1 học kỳ, nhập học đến ngày 03/10/2020 giảm 15% học phí.",
               },
               {
                 margin: [20, 0, 15, 0],
