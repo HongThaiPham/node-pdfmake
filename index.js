@@ -15,13 +15,13 @@ const contentSoYeuLyLich = require("./lib/contentSoYeuLyLich");
 const contentPhieuDangKy = require("./lib/contentPhieuDangKy");
 const buildDiaChi = require("./lib/tem-dia-chi");
 const PORT = 5004;
-const SLACK_HOOK =
-  "https://hooks.slack.com/services/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";
+
 
 const whitelist = [
   "https://am.lhu.edu.vn",
   "https://tuyensinh.lhu.edu.vn",
   "http://localhost:8080",
+  "http://localhost:5004",
 ];
 const corsOptions = {
   origin: function (origin, callback) {
@@ -33,7 +33,7 @@ const corsOptions = {
   },
 };
 
-app.use(cors(corsOptions));
+// app.use(cors(corsOptions));
 app.use(bodyParser.json({ limit: "50mb" }));
 app.use(bodyParser.urlencoded({ extended: true }));
 
@@ -85,49 +85,7 @@ function createPdfBinary(pdfDoc, callback) {
   });
   doc.end();
 }
-function postToSlack(url, type = "info", user = "", message) {
-  const curDate = new Date();
-  try {
-    axios.post(SLACK_HOOK, {
-      blocks: [
-        {
-          type: "section",
-          text: {
-            type: "mrkdwn",
-            text: `You have a new request:\n*<${url}|${url}>*`,
-          },
-        },
-        {
-          type: "section",
-          fields: [
-            {
-              type: "mrkdwn",
-              text: `*Type:*\n${type}`,
-            },
-            {
-              type: "mrkdwn",
-              text: `*When:*\n${curDate}`,
-            },
-            {
-              type: "mrkdwn",
-              text: `*User:*\n${user}`,
-            },
-          ],
-        },
-        {
-          type: "section",
-          text: {
-            type: "plain_text",
-            text: message,
-            emoji: true,
-          },
-        },
-      ],
-    });
-  } catch (error) {
-    throw error;
-  }
-}
+
 
 function getDataPrint(begin, end, token, onSucess, onError) {
   axios
@@ -433,7 +391,7 @@ function getDataPerson(id, onSucess, onError) {
       (error) => {
         onError(
           error.response.data.Message ||
-            "Thông tin không hợp lệ hoặc không tồn tại. Vui lòng liên hệ số điện thoại (0251) 73 000 73 để được tư vấn."
+          "Thông tin không hợp lệ hoặc không tồn tại. Vui lòng liên hệ số điện thoại (0251) 73 000 73 để được tư vấn."
         );
       }
     );
