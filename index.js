@@ -204,33 +204,7 @@ function buildPdfGiayBaoNhapHoc(begin, end, token, onSucess, onError) {
       }
 
       docDefinition.content = content;
-      docDefinition.footer = function (currentPage, pageCount) {
-        return {
-          margin: [25, 0, 0, 0],
-          stack: [
-            { text: "Ghi chú: ", bold: true, italics: true },
-            {
-              margin: [20, 0, 15, 0],
-              text: "- Điều kiện nhập học: Thí sinh đậu tốt nghiệp THPT",
-            },
-            {
-              margin: [20, 0, 15, 0],
-              text:
-                "- Học phí ngành Dược 18tr/ học kỳ, Ngành khác 13tr/1 học kỳ, nhập học đến ngày 10/10/2020 giảm 15% học phí.",
-            },
-            {
-              margin: [20, 0, 15, 0],
-              text:
-                "- Bạn được áp dụng giảm thêm học phí nếu thuộc nhóm đối tượng hưởng chính sách học bổng Đại học Lạc Hồng dành cho bạn.",
-            },
-          ],
-          // margin: [50, 0, 50, 0],
-          // text: [
-          //   { text: "Ghi chú: ", bold: true, italics: true },
-          //   "Bạn được áp dụng giảm thêm học phí nếu thuộc nhóm đối tượng hưởng chính sách học bổng Đại học Lạc Hồng dành cho bạn.",
-          // ],
-        };
-      };
+
       onSucess(docDefinition);
     },
     (error) => {
@@ -308,32 +282,7 @@ function buildPdfBoHoSo(begin, end, token, onSucess, onError) {
       }
 
       docDefinition.content = content;
-      docDefinition.footer = function (currentPage, pageCount) {
-        if (currentPage % 3 === 1) {
-          return {
-            margin: [25, 0, 0, 0],
-            stack: [
-              { text: "Ghi chú: ", bold: true, italics: true },
-              {
-                margin: [20, 0, 15, 0],
-                text: "- Điều kiện nhập học: Thí sinh đậu tốt nghiệp THPT",
-              },
-              {
-                margin: [20, 0, 15, 0],
-                text:
-                  "- Học phí ngành Dược 18tr/ học kỳ, Ngành khác 13tr/1 học kỳ, nhập học đến ngày 10/10/2020 giảm 15% học phí.",
-              },
-              {
-                margin: [20, 0, 15, 0],
-                text:
-                  "- Bạn được áp dụng giảm thêm học phí nếu thuộc nhóm đối tượng hưởng chính sách học bổng Đại học Lạc Hồng dành cho bạn.",
-              },
-            ],
-          };
-        } else {
-          return {};
-        }
-      };
+
       onSucess(docDefinition);
     },
     (error) => {
